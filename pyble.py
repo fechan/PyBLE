@@ -58,5 +58,25 @@ class Inventory:
         """
         return Inventory(self.segments[np.logical_and.reduce([self.segments[k] == v for k,v in feature_matrix.items()])])
 
-    def transform(self, feature_matrix: Dict[str, str]) -> "Inventory":
-        return Inventory(self.segments.assign(**feature_matrix))
+    def transform(self, feature_matrix: Dict[str, str]) -> Dict[str, List[str]]:
+        """
+        Apply the feature values in the feature matrix to the segments in this inventory,
+        and get the list of segments in this inventory that match the new featural specifications
+
+        :param feature_matrix: feature matrix to apply to segments in the inventory
+        :returns: dict that maps the inventory's segments to a list of matching segments in IPA
+
+        :example: If the inventory consisted of ["p", "b"], then applying the feature matrix
+            {"periodicGlottalSource": "+"} to add voicing to each segment would return
+            {"p": ["b"], "b": ["b"]}. In other words, p became voiced, and b was already voiced
+            so it remained the same.
+        """
+        modified = self.segments.assign(**feature_matrix)
+        transform_map = {}
+        for segment_index, segment_series in modified.iterrows():
+            features = segment_series.drop(SEGMENT_COL)
+            transform_map[segment_index] = (self.matching_segments(features)
+                .segments
+                .index
+                .to_list())
+        return transform_map
