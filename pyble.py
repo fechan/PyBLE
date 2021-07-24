@@ -47,7 +47,7 @@ class Inventory:
 
         :param file: file to dump data to
         """
-        self.segments.to_csv(file, encoding="utf-8", index=True)
+        self.segments.to_csv(file, encoding="utf-8", index=False)
 
     def matching_segments(self, feature_matrix: Dict[str, str]) -> "Inventory":
         """
