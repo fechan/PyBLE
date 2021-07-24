@@ -83,7 +83,9 @@ class Inventory:
 
     def add(self, segment: str, feature_matrix: Dict[str, str], default_value: str="0"):
         """
-        Add a segment to the inventory
+        Add a segment to the inventory.
+        If the feature matrix of the added segment has features not in the inventory, the features
+        are added to the inventory. Existing segments will have an NA value for these features.
 
         :param segment: IPA of the segment to add
         :param feature_matrix: featural specifications of the added segment
