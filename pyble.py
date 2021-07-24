@@ -47,7 +47,7 @@ class Inventory:
 
         :param file: file to dump data to
         """
-        self.segments.to_csv(file, encoding="utf-8", index=False)
+        self.segments.to_csv(file, encoding="utf-8", index=True)
 
     def matching_segments(self, feature_matrix: Dict[str, str]) -> "Inventory":
         """
@@ -80,3 +80,20 @@ class Inventory:
                 .index
                 .to_list())
         return transform_map
+
+    def add(self, segment: str, feature_matrix: Dict[str, str], default_value: str="0"):
+        """
+        Add a segment to the inventory
+
+        :param segment: IPA of the segment to add
+        :param feature_matrix: featural specifications of the added segment
+        :param default_value: (optional) default feature value for features in the inventory not
+            in the feature matrix
+        """
+        feature_matrix["segment"] = segment
+        for column in self.segments.columns:
+            if column not in feature_matrix:
+                feature_matrix[column] = default_value
+        self.segments = (self.segments
+            .append(feature_matrix, ignore_index=True)
+            .set_index(SEGMENT_COL))
