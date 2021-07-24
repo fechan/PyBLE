@@ -58,12 +58,15 @@ class Inventory:
         """
         return Inventory(self.segments[np.logical_and.reduce([self.segments[k] == v for k,v in feature_matrix.items()])])
 
-    def transform(self, feature_matrix: Dict[str, str]) -> Dict[str, List[str]]:
+    def transform(self, feature_matrix: Dict[str, str],
+            transform_targets: "Inventory"=None) -> Dict[str, List[str]]:
         """
         Apply the feature values in the feature matrix to the segments in this inventory,
-        and get the list of segments in this inventory that match the new featural specifications
+        and get the list of segments among the transform targets that match the new featural specifications
 
         :param feature_matrix: feature matrix to apply to segments in the inventory
+        :param transform_targets: (optional) Inventory containing segments that the current
+            inventory can be transformed into. Defaults to the current inventory.
         :returns: dict that maps the inventory's segments to a list of matching segments in IPA
 
         :example: If the inventory consisted of ["p", "b"], then applying the feature matrix
@@ -71,11 +74,14 @@ class Inventory:
             {"p": ["b"], "b": ["b"]}. In other words, p became voiced, and b was already voiced
             so it remained the same.
         """
+        if transform_targets is None:
+            transform_targets = self
+
         modified = self.segments.assign(**feature_matrix)
         transform_map = {}
         for segment_index, segment_series in modified.iterrows():
             features = segment_series.drop(SEGMENT_COL)
-            transform_map[segment_index] = (self.matching_segments(features)
+            transform_map[segment_index] = (transform_targets.matching_segments(features)
                 .segments
                 .index
                 .to_list())
