@@ -99,3 +99,20 @@ class Inventory:
         self.segments = (self.segments
             .append(feature_matrix, ignore_index=True)
             .set_index(SEGMENT_COL))
+
+    def drop_features(self, features: List[str]):
+        """
+        Drop features from the inventory that are in the given list
+
+        :param features: list of names of features
+        """
+        self.segments = self.segments.drop(features, axis=1)
+
+    def drop_redundant_features(self):
+        """
+        Drop features where all the segments in the inventory have the same value
+        """
+        for feature in self.segments.columns:
+            column_values = self.segments[feature].to_numpy()
+            if (column_values[0] == column_values).all():
+                self.segments.drop(feature, axis=1, inplace=True)
