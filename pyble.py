@@ -9,8 +9,9 @@ import pandas as pd
 import numpy as np
 
 ### Initialize data as a DataFrame
+SEGMENT_COL = "segment" # whatever the segment (non-feature) column is named in the data
 ALL_SEGMENTS = (pd.read_csv("phoible-segments-features.tsv", sep="\t", encoding="utf-8")
-    .set_index("segment", drop=False))
+    .set_index(SEGMENT_COL, drop=False))
 
 class Inventory:
     """
@@ -31,7 +32,7 @@ class Inventory:
 
         :param ipa: list of IPA segments
         """
-        return cls(ALL_SEGMENTS[ALL_SEGMENTS["segment"].isin(ipa)])
+        return cls(ALL_SEGMENTS[ALL_SEGMENTS[SEGMENT_COL].isin(ipa)])
 
     @classmethod
     def from_all_phoible(cls) -> "Inventory":
