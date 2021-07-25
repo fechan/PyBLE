@@ -107,7 +107,7 @@ class Inventory:
                 .to_list())
         return transform_map
 
-    def add(self, segment: str, feature_matrix: Dict[str, str], default_value: str="0"):
+    def add(self, segment: str, feature_matrix: Dict[str, str], default_value: str="0") -> "Inventory":
         """
         Add a segment to the inventory.
         If the feature matrix of the added segment has features not in the inventory, the features
@@ -117,14 +117,16 @@ class Inventory:
         :param feature_matrix: featural specifications of the added segment
         :param default_value: (optional) default feature value for features in the inventory not
             in the feature matrix
+        :returns: Inventory with the given segment added
         """
-        feature_matrix["segment"] = segment
+        feature_matrix[SEGMENT_COL] = segment
         for column in self.segments.columns:
             if column not in feature_matrix:
                 feature_matrix[column] = default_value
-        self.segments = (self.segments
+        added = (self.segments
             .append(feature_matrix, ignore_index=True)
-            .set_index(SEGMENT_COL))
+            .set_index(SEGMENT_COL, drop=False))
+        return Inventory(added)
 
     def drop_features(self, features: List[str]) -> "Inventory":
         """
