@@ -1,16 +1,23 @@
 """
 Pyble is a module that helps you work with PHOIBLE distinctive features data from
-https://github.com/phoible/dev/tree/master/raw-data/FEATURES
+https://github.com/phoible/dev/blob/master/data/phoible.csv
 
-Specifically, this module uses phoible-segments-features.tsv
+See also: PHOIBLE repo at https://github.com/phoible/dev
 """
 from typing import List, Dict, TextIO
 import pandas as pd
 import numpy as np
 
 ### Initialize data as a DataFrame
-SEGMENT_COL = "segment" # whatever the segment (non-feature) column is named in the data
-ALL_SEGMENTS = (pd.read_csv("phoible-segments-features.tsv", sep="\t", encoding="utf-8")
+# SEGMENT_COL = "segment" # whatever the segment (non-feature) column is named in the data
+# ALL_SEGMENTS = (pd.read_csv("phoible-segments-features.tsv", sep="\t", encoding="utf-8")
+#     .set_index(SEGMENT_COL, drop=False))
+
+SEGMENT_COL = "Phoneme"
+PHOIBLE_DATA = pd.read_csv("phoible.csv", encoding="utf-8")
+NONFEATURE_COLS = [col for col in PHOIBLE_DATA.columns if col[0].isupper()]
+ALL_SEGMENTS = (PHOIBLE_DATA.drop([col for col in NONFEATURE_COLS if col != SEGMENT_COL], axis=1)
+    .drop_duplicates(SEGMENT_COL)
     .set_index(SEGMENT_COL, drop=False))
 
 class Inventory:
@@ -40,6 +47,18 @@ class Inventory:
         Initialize an inventory containing every unique segment in PHOIBLE
         """
         return cls(ALL_SEGMENTS)
+
+    @classmethod
+    def from_phoible_id(cls, phoible_id: int) -> "Inventory":
+        """
+        Initialize an inventory from its PHOIBLE inventory ID
+
+        :param phoible_id: PHOIBLE inventory ID
+        """
+        lang_segments = (PHOIBLE_DATA[PHOIBLE_DATA["InventoryID"] == phoible_id]
+            .drop([col for col in NONFEATURE_COLS if col != SEGMENT_COL], axis=1)
+            .set_index(SEGMENT_COL, drop=False))
+        return cls(lang_segments)
 
     def dump_csv(self, file: TextIO):
         """
