@@ -81,7 +81,8 @@ class Inventory:
             transform_targets: "Inventory"=None) -> Dict[str, List[str]]:
         """
         Apply the feature values in the feature matrix to the segments in this inventory,
-        and get the list of segments among the transform targets that match the new featural specifications
+        and get the list of segments among the transform targets that match the new featural
+        specifications
 
         :param feature_matrix: feature matrix to apply to segments in the inventory
         :param transform_targets: (optional) Inventory containing segments that the current
